@@ -25,7 +25,7 @@ import gdsfm.telegrambot.repository.HistoryEntryRepository;
 @Controller
 @EnableAutoConfiguration
 @EnableScheduling
-public class GdsfmTelegramBotApplication {
+public class GdsfmTelegramBotServerApplication {
 
 	@Autowired
 	HistoryEntryRepository historyEntryRepository;
@@ -87,6 +87,6 @@ public class GdsfmTelegramBotApplication {
 	}
 
 	public static void main(String[] args) throws Exception {
-		SpringApplication.run(GdsfmTelegramBotApplication.class, args);
+		SpringApplication.run(GdsfmTelegramBotServerApplication.class, args);
 	}
 }
