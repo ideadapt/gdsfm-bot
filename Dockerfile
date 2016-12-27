@@ -36,8 +36,10 @@ RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-
 
 RUN curl -sSL https://github.com/ideadapt/gdsfm-bot/archive/master.tar.gz | tar -xzv
 RUN npm i -g yarn 
-RUN cd gdsfm-bot-master && yarn install
+RUN pwd && ls -ahl
+RUN cd gdsfm-bot-master/gdsfm-bot && yarn install
+RUN cd .. && cd gdsfm-bot-master/gdsfm-server && mvn package
 RUN cd .. && pwd
 
-CMD node -v && java -version && mvn --version && ls -ahl && node gdsfm-bot-master/telebot.js
+CMD node -v && java -version && mvn --version && ls -ahl && java -jar gdsfm-bot-master/gdsfm-server/target/telegram-bot-0.0.1-SNAPSHOT.jar && node gdsfm-bot-master/gdsfm-bot/telebot.js
 #sh telegram-bot.sh
