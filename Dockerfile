@@ -41,5 +41,4 @@ RUN cd gdsfm-bot-master/gdsfm-bot && yarn install
 RUN cd .. && cd gdsfm-bot-master/gdsfm-server && mvn package
 RUN cd .. && pwd
 
-CMD node -v && java -version && mvn --version && ls -ahl && java -jar gdsfm-bot-master/gdsfm-server/target/telegram-bot-0.0.1-SNAPSHOT.jar && node gdsfm-bot-master/gdsfm-bot/telebot.js
-#sh telegram-bot.sh
+RUN sh telegram-bot.sh
