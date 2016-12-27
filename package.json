@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "request": "^2.79.0",
+    "telebot": "^1.0.6"
+  }
+}
