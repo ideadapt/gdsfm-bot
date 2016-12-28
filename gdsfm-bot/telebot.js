@@ -20,7 +20,7 @@ bot.on('/history', msg => {
   console.log(cmdName, nrOfItems)
   return request.get({url: apiRoot}, (err, res, body)=>{
     let json = JSON.parse(body)
-    return bot.sendMessage(chatId, json.toString().substring(0, 10), {reply})    
+     return bot.sendMessage(chatId, json.toString().substring(0, 10), {reply})
   })
 })
 

@@ -41,4 +41,4 @@ RUN cd gdsfm-bot-master/gdsfm-bot && yarn install
 RUN cd .. && cd gdsfm-bot-master/gdsfm-server && mvn package
 RUN cd .. && pwd
 
-RUN sh telegram-bot.sh
+CMD sh gdsfm-bot-master/gdsfm-bot.sh
