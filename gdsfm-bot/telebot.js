@@ -11,16 +11,14 @@ const bot = new TeleBot({
   }
 })
 
-const apiRoot = 'http://gdsfm.airtime.pro/api/item-history-feed'
+const apiRoot = 'http://localhost:8080'
 
-bot.on('/history', msg => {
+bot.on('/current', msg => {
   let [cmdName, nrOfItems] = msg.text.split(' ')
   let chatId = msg.from.id
   let reply = msg.message_id
-  console.log(cmdName, nrOfItems)
-  return request.get({url: apiRoot}, (err, res, body)=>{
-    let json = JSON.parse(body)
-     return bot.sendMessage(chatId, json.toString().substring(0, 10), {reply})
+  return request.get({url: apiRoot + "/current"}, (err, res, body)=>{
+    return body
   })
 })
 
