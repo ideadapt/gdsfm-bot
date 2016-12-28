@@ -18,7 +18,7 @@ bot.on('/current', msg => {
   let chatId = msg.from.id
   let reply = msg.message_id
   return request.get({url: apiRoot + "/current"}, (err, res, body)=>{
-    return body
+     return bot.sendMessage(chatId, body, {reply})
   })
 })
 
