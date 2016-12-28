@@ -13,6 +13,8 @@
 
 	<properties>
 		<java.version>1.8</java.version>
+		<docker.image.repository>ggrassi6</docker.image.repository>
+		<docker.image.prefix>gdsfm</docker.image.prefix>
 	</properties>
 
 	<dependencies>
@@ -59,6 +61,29 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<version>0.4.11</version>
+				<configuration>
+					<imageName>${docker.image.repository}/${docker.image.prefix}-${project.artifactId}</imageName>
+					<baseImage>frolvlad/alpine-oraclejdk8:slim</baseImage>
+					<entryPoint>["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/${project.build.finalName}.jar"]</entryPoint>
+					<forceTags>true</forceTags>
+					<imageTags>
+						<imageTag>${project.version}</imageTag>
+						<imageTag>latest</imageTag>
+					</imageTags>
+					<resources>
+						<resource>
+							<targetPath>/</targetPath>
+							<directory>${project.build.directory}</directory>
+							<include>${project.build.finalName}.jar</include>
+						</resource>
+					</resources>
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
 </project>
