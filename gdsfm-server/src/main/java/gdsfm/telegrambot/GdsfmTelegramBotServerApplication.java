@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -25,6 +27,8 @@ import gdsfm.telegrambot.repository.HistoryEntryRepository;
 @Controller
 @EnableAutoConfiguration
 @EnableScheduling
+@ComponentScan("gdsfm.telegrambot")
+@SpringBootApplication
 public class GdsfmTelegramBotServerApplication {
 
 	@Autowired

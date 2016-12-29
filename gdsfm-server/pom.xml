@@ -17,7 +17,20 @@
 		<docker.image.prefix>gdsfm</docker.image.prefix>
 	</properties>
 
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
+
+		<dependency>
+			<groupId>com.github.xabgesagtx</groupId>
+			<artifactId>telegram-spring-boot-starter</artifactId>
+			<version>0.2</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -71,7 +84,6 @@
 					<entryPoint>["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/${project.build.finalName}.jar"]</entryPoint>
 					<forceTags>true</forceTags>
 					<imageTags>
-						<imageTag>${project.version}</imageTag>
 						<imageTag>latest</imageTag>
 					</imageTags>
 					<resources>
