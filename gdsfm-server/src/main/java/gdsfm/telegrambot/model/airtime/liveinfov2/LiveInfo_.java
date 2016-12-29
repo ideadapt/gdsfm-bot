@@ -25,6 +25,7 @@ public class LiveInfo_ {
 	@JsonProperty("media_item_played")
 	private Boolean mediaItemPlayed;
 	@JsonProperty("metadata")
+	@JsonIgnore
 	private Metadata_ metadata;
 	@JsonProperty("record")
 	private String record;
