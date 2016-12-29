@@ -86,4 +86,16 @@ public class HistoryTrack {
     public void setArtist_name(String artist_name) {
         this.artist_name = artist_name;
     }
+
+    @Override
+    public String toString() {
+        return "HistoryTrack{" +
+                "history_id='" + history_id + '\'' +
+                ", starts=" + starts +
+                ", ends=" + ends +
+                ", instance_id='" + instance_id + '\'' +
+                ", track_title='" + track_title + '\'' +
+                ", artist_name='" + artist_name + '\'' +
+                '}';
+    }
 }

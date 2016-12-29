@@ -53,8 +53,8 @@ public class GdsfmTelegramBotServerApplication {
 						.getTrack_title(), info.getArtist_name()))
 				.collect(Collectors.toList());
 
+		historyEntryRepository.deleteAll();
 		historyEntryRepository.save(tracks);
-		// TODO don't replace history entries
 	}
 
 	@Scheduled(fixedDelay = 15000)
@@ -87,7 +87,7 @@ public class GdsfmTelegramBotServerApplication {
 	List<HistoryTrack> last(@RequestParam(value = "limit", defaultValue = "5") int limit) {
 		// TODO add index to date
 		final List<HistoryTrack> entries = historyEntryRepository
-				.findAllByOrderByStartsAsc(new PageRequest(0, limit));
+				.findAllByOrderByStartsDesc(new PageRequest(0, limit));
 
 		return entries.stream().sorted((e1, e2) -> e1.getStarts().isBefore(e2.getStarts()) ? 1 : 0).limit(5)
 				.collect(Collectors.toList());
@@ -95,9 +95,11 @@ public class GdsfmTelegramBotServerApplication {
 
 	@RequestMapping("/history")
 	@ResponseBody
-	HistoryTrack history(
+	List<HistoryTrack> history(
 			@RequestParam(value = "date", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime date) {
-		return null; /*historyEntryRepository.findByTrackAtDate(date, new PageRequest(0, 1)).stream().findAny().orElseGet(null);*/
+		return historyEntryRepository.findByEndsAfter(date, new PageRequest(0, 10))
+				.stream()
+				.collect(Collectors.toList());
 	}
 
 	@RequestMapping("/")

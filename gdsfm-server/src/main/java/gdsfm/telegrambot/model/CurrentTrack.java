@@ -30,4 +30,11 @@ public class CurrentTrack {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public String toString() {
+        return "CurrentTrack{" +
+                "name='" + name + '\'' +
+                '}';
+    }
 }

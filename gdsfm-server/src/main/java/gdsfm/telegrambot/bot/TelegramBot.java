@@ -1,7 +1,8 @@
 package gdsfm.telegrambot.bot;
 
+import gdsfm.telegrambot.model.CurrentTrack;
 import gdsfm.telegrambot.model.HistoryTrack;
-import gdsfm.telegrambot.model.airtime.itemhistoryfeed.AirtimeHistoryEntry;
+import gdsfm.telegrambot.repository.AirtimeLiveEntryRepository;
 import gdsfm.telegrambot.repository.HistoryEntryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,18 +16,25 @@ import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by ggrassi on 28.12.16.
  */
 @Component
-public class TelegramBot extends TelegramLongPollingBot{
+public class TelegramBot extends TelegramLongPollingBot {
 
     private static final Logger logger = LoggerFactory.getLogger(TelegramBot.class);
 
+    private final int maxSize = 10;
+
     @Autowired
-    private HistoryEntryRepository repository;
+    private HistoryEntryRepository historyRepository;
+
+    @Autowired
+    private AirtimeLiveEntryRepository liveRepository;
 
     @Value("${bot.token}")
     private String token;
@@ -35,9 +43,9 @@ public class TelegramBot extends TelegramLongPollingBot{
     private String username;
 
 /*    @Autowired
-    public TelegramBot(HistoryEntryRepository repository) {
+    public TelegramBot(HistoryEntryRepository historyRepository) {
         super();
-        this.repository=repository;
+        this.historyRepository=historyRepository;
     }*/
 
     @Override
@@ -49,13 +57,23 @@ public class TelegramBot extends TelegramLongPollingBot{
             response.setChatId(chatId);
             String text = message.getText();
 
-            List<HistoryTrack> allByOrderByStartsAsc = repository.findAllByOrderByStartsAsc(new PageRequest(0, 1));
-
-            HistoryTrack airtimeHistoryEntry = allByOrderByStartsAsc.stream().findFirst().get();
-
-            response.setText(airtimeHistoryEntry.getArtist_name() +" - "+airtimeHistoryEntry.getTrack_title());
-
             try {
+                if (text.contains("/after")) {
+
+                    List<HistoryTrack> historyAfter = historyRepository.findByEndsAfter(LocalDateTime.now().minusHours(1), new PageRequest(0, maxSize));
+                    response.setText(historyAfter.toString());
+                } else if(text.contains("/history")) {
+                    List<HistoryTrack> allByOrderByStartsAsc = historyRepository.findAllByOrderByStartsDesc(new PageRequest(0, maxSize));
+                    response.setText(allByOrderByStartsAsc.toString());
+
+                }else{
+                    CurrentTrack liveTrack = liveRepository.findAll()
+                            .stream()
+                            .findFirst()
+                            .orElseGet(() -> new CurrentTrack());
+                    response.setText(liveTrack.toString());;
+                }
+
                 sendMessage(response);
                 logger.info("Sent message \"{}\" to {}", text, chatId);
             } catch (TelegramApiException e) {

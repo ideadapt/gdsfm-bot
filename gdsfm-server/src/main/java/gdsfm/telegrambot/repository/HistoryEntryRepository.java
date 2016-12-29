@@ -16,11 +16,8 @@ import gdsfm.telegrambot.model.airtime.itemhistoryfeed.AirtimeHistoryEntry;
 public interface HistoryEntryRepository extends MongoRepository<HistoryTrack, String> {
 
 
-	List<HistoryTrack> findAllByOrderByStartsAsc(Pageable pageable);
-/*
+	List<HistoryTrack> findAllByOrderByStartsDesc(Pageable pageable);
 
-	@Query("select e from HistoryTrack e where e.starts < ?1 order by e.starts desc")
-	List<HistoryTrack> findByTrackAtDate(LocalDateTime date, Pageable pageable); //TODO remove list hack
-*/
+	List<HistoryTrack> findByEndsAfter(LocalDateTime date, Pageable pageable); //TODO remove list hack
 
 }
