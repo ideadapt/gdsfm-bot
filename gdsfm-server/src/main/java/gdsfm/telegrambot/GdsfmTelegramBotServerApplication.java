@@ -24,8 +24,9 @@ import gdsfm.telegrambot.model.CurrentTrack;
 import gdsfm.telegrambot.model.HistoryTrack;
 import gdsfm.telegrambot.model.airtime.itemhistoryfeed.AirtimeHistoryEntry;
 import gdsfm.telegrambot.model.airtime.liveinfov2.AirtimeLiveInfo;
-import gdsfm.telegrambot.model.airtime.liveinfov2.track.Track;
-import gdsfm.telegrambot.repository.AirtimeHistoryEntryRepository;
+import gdsfm.telegrambot.repository.AirtimeHistoryEntryJpaRepository;
+import gdsfm.telegrambot.repository.AirtimeHistoryEntryMongoRepository;
+import gdsfm.telegrambot.repository.AirtimeLiveEntryMongoRepository;
 import gdsfm.telegrambot.repository.ShowRepository;
 
 @Controller
@@ -36,11 +37,16 @@ import gdsfm.telegrambot.repository.ShowRepository;
 public class GdsfmTelegramBotServerApplication {
 
 	@Autowired
-	AirtimeHistoryEntryRepository historyEntryRepository;
-	
+	AirtimeHistoryEntryMongoRepository historyEntryMongoRepository;
+
+	@Autowired
+	AirtimeLiveEntryMongoRepository liveEntryMongoRepository;
+
+	@Autowired
+	AirtimeHistoryEntryJpaRepository historyEntryJpaRepository;
+
 	@Autowired
 	ShowRepository showRepository;
-
 
 	@Scheduled(fixedDelay = 2000)
 	public void parseAndStoreHistory() {
@@ -50,12 +56,12 @@ public class GdsfmTelegramBotServerApplication {
 
 		List<AirtimeHistoryEntry> liveInfos = Arrays.asList(entries);
 		List<HistoryTrack> tracks = liveInfos.stream()
-				.map(info -> new HistoryTrack(info.getHistory_id(), info.getStarts(), info.getEnds(), info.getInstance_id(), info
-						.getTrack_title(), info.getArtist_name()))
+				.map(info -> new HistoryTrack(info.getHistory_id(), info.getStarts(), info.getEnds(),
+						info.getInstance_id(), info.getTrack_title(), info.getArtist_name()))
 				.collect(Collectors.toList());
 
-		historyEntryRepository.deleteAll();
-		historyEntryRepository.save(tracks);
+		historyEntryMongoRepository.deleteAll();
+		historyEntryMongoRepository.save(tracks);
 	}
 
 	@Scheduled(fixedDelay = 15000)
@@ -63,47 +69,44 @@ public class GdsfmTelegramBotServerApplication {
 		final RestTemplate restTemplate = new RestTemplate();
 		final AirtimeLiveInfo liveInfo = restTemplate.getForObject("http://gdsfm.airtime.pro/api/live-info-v2",
 				AirtimeLiveInfo.class);
-		historyEntryRepository.deleteAll();
+		liveEntryMongoRepository.deleteAll();
 
-		Track current = liveInfo.getTracks().getCurrent();
+		CurrentTrack current = new CurrentTrack(liveInfo.getTracks().getCurrent().getName());
 
-		historyEntryRepository.save(current);
+		liveEntryMongoRepository.save(current);
 	}
-	
-		@Scheduled(fixedDelay = 2000)
+
+	@Scheduled(fixedDelay = 2000)
 	public void parseAndStoreHistory2() {
 		RestTemplate restTemplate = new RestTemplate();
 		AirtimeHistoryEntry[] entries = restTemplate.getForObject("http://gdsfm.airtime.pro/api/item-history-feed",
 				AirtimeHistoryEntry[].class);
-		historyEntryRepository.save(Arrays.asList(entries));
+		historyEntryJpaRepository.save(Arrays.asList(entries));
 		// TODO don't replace history entries
 	}
-	
+
 	@Scheduled(fixedDelay = 2000)
 	public void parseAndStoreShows() {
 		final RestTemplate restTemplate = new RestTemplate();
 		final AirtimeLiveInfo liveInfo = restTemplate.getForObject("http://gdsfm.airtime.pro/api/live-info-v2",
 				AirtimeLiveInfo.class);
-		
+
 		showRepository.save(liveInfo.getShows().getCurrent());
-		
-		
 	}
 
 	@RequestMapping("/current")
 	@ResponseBody
 	String current() {
+		List<CurrentTrack> all = liveEntryMongoRepository.findAll();
 
-		List<CurrentTrack> all = airtimeLiveEntryRepository.findAll();
-
-		if(all.isEmpty()){
+		if (all.isEmpty()) {
 			return "Sorry dude, to fast, im lazy need to have a beer and come later, ciao!!!!";
 		}
 		CurrentTrack current = all.stream().findFirst().orElseGet(null);
-		return current.getName() ;
+		return current.getName();
 	}
-	
-		@RequestMapping("/current2")
+
+	@RequestMapping("/current2")
 	@ResponseBody
 	String current2() {
 		final RestTemplate restTemplate = new RestTemplate();
@@ -116,7 +119,7 @@ public class GdsfmTelegramBotServerApplication {
 	@ResponseBody
 	List<HistoryTrack> last(@RequestParam(value = "limit", defaultValue = "5") int limit) {
 		// TODO add index to date
-		final List<HistoryTrack> entries = historyEntryRepository
+		final List<HistoryTrack> entries = historyEntryMongoRepository
 				.findAllByOrderByStartsDesc(new PageRequest(0, limit));
 
 		return entries.stream().sorted((e1, e2) -> e1.getStarts().isBefore(e2.getStarts()) ? 1 : 0).limit(5)
@@ -127,16 +130,16 @@ public class GdsfmTelegramBotServerApplication {
 	@ResponseBody
 	List<HistoryTrack> history(
 			@RequestParam(value = "date", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime date) {
-		return historyEntryRepository.findByEndsAfter(date, new PageRequest(0, 10))
-				.stream()
+		return historyEntryMongoRepository.findByEndsAfter(date, new PageRequest(0, 10)).stream()
 				.collect(Collectors.toList());
 	}
-	
-		@RequestMapping("/history2")
+
+	@RequestMapping("/history2")
 	@ResponseBody
-	AirtimeHistoryEntry history2( 
+	AirtimeHistoryEntry history2(
 			@RequestParam(value = "date", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime date) {
-		return historyEntryRepository.findByTrackAtDate(date, new PageRequest(0, 1)).stream().findAny().orElseGet(null);
+		return historyEntryJpaRepository.findByTrackAtDate(date, new PageRequest(0, 1)).stream().findAny()
+				.orElseGet(null);
 	}
 
 	@RequestMapping("/")
@@ -151,10 +154,10 @@ public class GdsfmTelegramBotServerApplication {
 				AirtimeHistoryEntry[].class);
 		List<AirtimeHistoryEntry> liveInfos = Arrays.asList(entries);
 		List<HistoryTrack> tracks = liveInfos.stream()
-				.map(info -> new HistoryTrack(info.getHistory_id(), info.getStarts(), info.getEnds(), info.getInstance_id(), info
-						.getTrack_title(), info.getArtist_name()))
+				.map(info -> new HistoryTrack(info.getHistory_id(), info.getStarts(), info.getEnds(),
+						info.getInstance_id(), info.getTrack_title(), info.getArtist_name()))
 				.collect(Collectors.toList());
-		historyEntryRepository.save(tracks);
+		historyEntryMongoRepository.save(tracks);
 
 		Arrays.asList(entries).stream().forEach(e -> {
 			System.out.println(e);
@@ -162,8 +165,8 @@ public class GdsfmTelegramBotServerApplication {
 
 		return "Hello World!";
 	}
-	
-		@RequestMapping("/dev2")
+
+	@RequestMapping("/dev2")
 	@ResponseBody
 	String dev2() {
 		RestTemplate restTemplate = new RestTemplate();
@@ -174,7 +177,7 @@ public class GdsfmTelegramBotServerApplication {
 		AirtimeHistoryEntry[] entries = restTemplate.getForObject("http://gdsfm.airtime.pro/api/item-history-feed",
 				AirtimeHistoryEntry[].class);
 
-		historyEntryRepository.save(Arrays.asList(entries));
+		historyEntryJpaRepository.save(Arrays.asList(entries));
 
 		Arrays.asList(entries).stream().forEach(e -> {
 			System.out.println(e);

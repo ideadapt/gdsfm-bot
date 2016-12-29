@@ -1,9 +1,8 @@
 package gdsfm.telegrambot.bot;
 
-import gdsfm.telegrambot.model.CurrentTrack;
-import gdsfm.telegrambot.model.HistoryTrack;
-import gdsfm.telegrambot.repository.AirtimeLiveEntryRepository;
-import gdsfm.telegrambot.repository.HistoryEntryRepository;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +15,10 @@ import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+import gdsfm.telegrambot.model.CurrentTrack;
+import gdsfm.telegrambot.model.HistoryTrack;
+import gdsfm.telegrambot.repository.AirtimeHistoryEntryMongoRepository;
+import gdsfm.telegrambot.repository.AirtimeLiveEntryMongoRepository;
 
 /**
  * Created by ggrassi on 28.12.16.
@@ -31,10 +31,10 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final int maxSize = 10;
 
     @Autowired
-    private HistoryEntryRepository historyRepository;
+    private AirtimeHistoryEntryMongoRepository historyRepository;
 
     @Autowired
-    private AirtimeLiveEntryRepository liveRepository;
+    private AirtimeLiveEntryMongoRepository liveRepository;
 
     @Value("${bot.token}")
     private String token;

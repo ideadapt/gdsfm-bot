@@ -1,10 +1,10 @@
 package gdsfm.telegrambot.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import javax.persistence.Id;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * Created by ggrassi on 29.12.16.

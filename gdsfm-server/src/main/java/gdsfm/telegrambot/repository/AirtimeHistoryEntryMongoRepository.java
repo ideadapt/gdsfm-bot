@@ -12,7 +12,7 @@ import gdsfm.telegrambot.model.HistoryTrack;
 import gdsfm.telegrambot.model.airtime.itemhistoryfeed.AirtimeHistoryEntry;
 
 @Repository
-public interface AirtimeHistoryEntryRepository extends MongoRepository<HistoryTrack, String> {
+public interface AirtimeHistoryEntryMongoRepository extends MongoRepository<HistoryTrack, String> {
 
 	@Query("select e from AirtimeHistoryEntry e where e.starts < ?1 order by e.starts desc")
 	List<AirtimeHistoryEntry> findByTrackAtDate(LocalDateTime date, Pageable pageable); //TODO remove list hack
