@@ -5,11 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import gdsfm.telegrambot.model.CurrentTrack;
-import gdsfm.telegrambot.model.HistoryTrack;
-import gdsfm.telegrambot.model.airtime.itemhistoryfeed.AirtimeHistoryEntry;
-import gdsfm.telegrambot.model.airtime.liveinfov2.LiveInfo_;
-import gdsfm.telegrambot.repository.AirtimeLiveEntryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -25,8 +20,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
-import gdsfm.telegrambot.model.airtime.liveinfov2.LiveInfo;
-import gdsfm.telegrambot.repository.HistoryEntryRepository;
+import gdsfm.telegrambot.model.CurrentTrack;
+import gdsfm.telegrambot.model.HistoryTrack;
+import gdsfm.telegrambot.model.airtime.itemhistoryfeed.AirtimeHistoryEntry;
+import gdsfm.telegrambot.model.airtime.liveinfov2.AirtimeLiveInfo;
+import gdsfm.telegrambot.model.airtime.liveinfov2.track.Track;
+import gdsfm.telegrambot.repository.AirtimeHistoryEntryRepository;
+import gdsfm.telegrambot.repository.ShowRepository;
 
 @Controller
 @EnableAutoConfiguration
@@ -36,10 +36,11 @@ import gdsfm.telegrambot.repository.HistoryEntryRepository;
 public class GdsfmTelegramBotServerApplication {
 
 	@Autowired
-	HistoryEntryRepository historyEntryRepository;
-
+	AirtimeHistoryEntryRepository historyEntryRepository;
+	
 	@Autowired
-	AirtimeLiveEntryRepository airtimeLiveEntryRepository;
+	ShowRepository showRepository;
+
 
 	@Scheduled(fixedDelay = 2000)
 	public void parseAndStoreHistory() {
@@ -60,13 +61,33 @@ public class GdsfmTelegramBotServerApplication {
 	@Scheduled(fixedDelay = 15000)
 	public void parseAndStoreCurrent() {
 		final RestTemplate restTemplate = new RestTemplate();
-		final LiveInfo liveInfo = restTemplate.getForObject("http://gdsfm.airtime.pro/api/live-info-v2",
-				LiveInfo.class);
-		airtimeLiveEntryRepository.deleteAll();
+		final AirtimeLiveInfo liveInfo = restTemplate.getForObject("http://gdsfm.airtime.pro/api/live-info-v2",
+				AirtimeLiveInfo.class);
+		historyEntryRepository.deleteAll();
 
-		LiveInfo_ current = liveInfo.getTracks().getCurrent();
+		Track current = liveInfo.getTracks().getCurrent();
 
-		airtimeLiveEntryRepository.save(Arrays.asList(new CurrentTrack(current.getName())));
+		historyEntryRepository.save(current);
+	}
+	
+		@Scheduled(fixedDelay = 2000)
+	public void parseAndStoreHistory2() {
+		RestTemplate restTemplate = new RestTemplate();
+		AirtimeHistoryEntry[] entries = restTemplate.getForObject("http://gdsfm.airtime.pro/api/item-history-feed",
+				AirtimeHistoryEntry[].class);
+		historyEntryRepository.save(Arrays.asList(entries));
+		// TODO don't replace history entries
+	}
+	
+	@Scheduled(fixedDelay = 2000)
+	public void parseAndStoreShows() {
+		final RestTemplate restTemplate = new RestTemplate();
+		final AirtimeLiveInfo liveInfo = restTemplate.getForObject("http://gdsfm.airtime.pro/api/live-info-v2",
+				AirtimeLiveInfo.class);
+		
+		showRepository.save(liveInfo.getShows().getCurrent());
+		
+		
 	}
 
 	@RequestMapping("/current")
@@ -80,6 +101,15 @@ public class GdsfmTelegramBotServerApplication {
 		}
 		CurrentTrack current = all.stream().findFirst().orElseGet(null);
 		return current.getName() ;
+	}
+	
+		@RequestMapping("/current2")
+	@ResponseBody
+	String current2() {
+		final RestTemplate restTemplate = new RestTemplate();
+		final AirtimeLiveInfo liveInfo = restTemplate.getForObject("http://gdsfm.airtime.pro/api/live-info-v2",
+				AirtimeLiveInfo.class);
+		return liveInfo.getTracks().getCurrent().getName();
 	}
 
 	@RequestMapping("/last")
@@ -101,6 +131,13 @@ public class GdsfmTelegramBotServerApplication {
 				.stream()
 				.collect(Collectors.toList());
 	}
+	
+		@RequestMapping("/history2")
+	@ResponseBody
+	AirtimeHistoryEntry history2( 
+			@RequestParam(value = "date", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime date) {
+		return historyEntryRepository.findByTrackAtDate(date, new PageRequest(0, 1)).stream().findAny().orElseGet(null);
+	}
 
 	@RequestMapping("/")
 	@ResponseBody
@@ -118,6 +155,26 @@ public class GdsfmTelegramBotServerApplication {
 						.getTrack_title(), info.getArtist_name()))
 				.collect(Collectors.toList());
 		historyEntryRepository.save(tracks);
+
+		Arrays.asList(entries).stream().forEach(e -> {
+			System.out.println(e);
+		});
+
+		return "Hello World!";
+	}
+	
+		@RequestMapping("/dev2")
+	@ResponseBody
+	String dev2() {
+		RestTemplate restTemplate = new RestTemplate();
+		String consumeJSONString = restTemplate.getForObject("http://gdsfm.airtime.pro/api/item-history-feed",
+				String.class);
+		System.out.println("JSON String: " + consumeJSONString);
+
+		AirtimeHistoryEntry[] entries = restTemplate.getForObject("http://gdsfm.airtime.pro/api/item-history-feed",
+				AirtimeHistoryEntry[].class);
+
+		historyEntryRepository.save(Arrays.asList(entries));
 
 		Arrays.asList(entries).stream().forEach(e -> {
 			System.out.println(e);
