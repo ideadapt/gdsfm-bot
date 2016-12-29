@@ -1,9 +1,9 @@
 
-package gdsfm.telegrambot.model.airtime.liveinfov2;
+package gdsfm.telegrambot.model.airtime.liveinfov2.track;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -13,44 +13,44 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({ "previous", "current", "next" })
-public class Shows {
+public class Tracks {
 
 	@JsonProperty("previous")
-	private List<Object> previous = null;
+	private Track previous;
 	@JsonProperty("current")
-	private LiveInfo__ current;
+	private Track current;
 	@JsonProperty("next")
-	private List<Next_> next = null;
+	private Track next;
 	@JsonIgnore
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
 	@JsonProperty("previous")
-	public List<Object> getPrevious() {
+	public Track getPrevious() {
 		return previous;
 	}
 
 	@JsonProperty("previous")
-	public void setPrevious(List<Object> previous) {
+	public void setPrevious(Track previous) {
 		this.previous = previous;
 	}
 
 	@JsonProperty("current")
-	public LiveInfo__ getCurrent() {
+	public Track getCurrent() {
 		return current;
 	}
 
 	@JsonProperty("current")
-	public void setCurrent(LiveInfo__ current) {
+	public void setCurrent(Track current) {
 		this.current = current;
 	}
 
 	@JsonProperty("next")
-	public List<Next_> getNext() {
+	public Track getNext() {
 		return next;
 	}
 
 	@JsonProperty("next")
-	public void setNext(List<Next_> next) {
+	public void setNext(Track next) {
 		this.next = next;
 	}
 

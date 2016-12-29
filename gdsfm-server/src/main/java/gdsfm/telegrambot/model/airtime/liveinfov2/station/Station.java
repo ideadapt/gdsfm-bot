@@ -1,5 +1,5 @@
 
-package gdsfm.telegrambot.model.airtime.liveinfov2;
+package gdsfm.telegrambot.model.airtime.liveinfov2.station;
 
 import java.util.HashMap;
 import java.util.Map;

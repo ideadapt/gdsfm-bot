@@ -1,8 +1,9 @@
 
-package gdsfm.telegrambot.model.airtime.liveinfov2;
+package gdsfm.telegrambot.model.airtime.liveinfov2.track;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -21,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 		"soundcloud_id", "soundcloud_error_code", "soundcloud_error_msg", "soundcloud_link_to_file",
 		"soundcloud_upload_time", "replay_gain", "owner_id", "cuein", "cueout", "hidden", "filesize", "description",
 		"cloud_file_id" })
-public class Metadata {
+public class TrackMetadata {
 
 	@JsonProperty("id")
 	private Integer id;

@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.Table;
 
 import org.dom4j.tree.AbstractEntity;
 
@@ -12,7 +14,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AirtimeHistoryEntry extends AbstractEntity {
+@Table(indexes = { @Index(name = "STARTS", columnList = "starts") })
+public class AirtimeHistoryEntry extends AbstractEntity { //TODO try to remove
 	private static final long serialVersionUID = 3621195233271594236L;
 
 	@Id

@@ -1,8 +1,11 @@
 
-package gdsfm.telegrambot.model.airtime.liveinfov2;
+package gdsfm.telegrambot.model.airtime.liveinfov2.track;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -12,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({ "starts", "ends", "type", "name", "media_item_played", "metadata", "record" })
-public class LiveInfo_ {
+public class Track {
 
 	@JsonProperty("starts")
 	private String starts;
@@ -25,11 +28,12 @@ public class LiveInfo_ {
 	@JsonProperty("media_item_played")
 	private Boolean mediaItemPlayed;
 	@JsonProperty("metadata")
-	@JsonIgnore
-	private Metadata_ metadata;
+	private TrackMetadata metadata;
 	@JsonProperty("record")
 	private String record;
+
 	@JsonIgnore
+	@Transient
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
 	@JsonProperty("starts")
@@ -83,12 +87,12 @@ public class LiveInfo_ {
 	}
 
 	@JsonProperty("metadata")
-	public Metadata_ getMetadata() {
+	public TrackMetadata getMetadata() {
 		return metadata;
 	}
 
 	@JsonProperty("metadata")
-	public void setMetadata(Metadata_ metadata) {
+	public void setMetadata(TrackMetadata metadata) {
 		this.metadata = metadata;
 	}
 

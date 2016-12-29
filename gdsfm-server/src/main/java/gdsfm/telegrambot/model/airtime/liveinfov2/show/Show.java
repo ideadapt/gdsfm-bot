@@ -1,19 +1,31 @@
 
-package gdsfm.telegrambot.model.airtime.liveinfov2;
+package gdsfm.telegrambot.model.airtime.liveinfov2.show;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+@Entity
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({ "name", "description", "genre", "id", "instance_id", "record", "url", "image_path",
 		"image_cloud_file_id", "starts", "ends" })
-public class Next_ {
+public class Show {
+
+	@Id
+	@JsonProperty("id")
+	private Integer id;
 
 	@JsonProperty("name")
 	private String name;
@@ -21,23 +33,27 @@ public class Next_ {
 	private String description;
 	@JsonProperty("genre")
 	private String genre;
-	@JsonProperty("id")
-	private Integer id;
-	@JsonProperty("instance_id")
-	private Integer instanceId;
 	@JsonProperty("record")
 	private Integer record;
+	@JsonProperty("instance_id")
+	private Integer instanceId;
+
 	@JsonProperty("url")
 	private String url;
+
 	@JsonProperty("image_path")
 	private String imagePath;
+	@Transient
 	@JsonProperty("image_cloud_file_id")
 	private Object imageCloudFileId;
-	@JsonProperty("starts")
-	private String starts;
-	@JsonProperty("ends")
-	private String ends;
+
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime starts;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime ends;
+	
 	@JsonIgnore
+	@Transient
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
 	@JsonProperty("name")
@@ -131,22 +147,22 @@ public class Next_ {
 	}
 
 	@JsonProperty("starts")
-	public String getStarts() {
+	public LocalDateTime getStarts() {
 		return starts;
 	}
 
 	@JsonProperty("starts")
-	public void setStarts(String starts) {
+	public void setStarts(LocalDateTime starts) {
 		this.starts = starts;
 	}
 
 	@JsonProperty("ends")
-	public String getEnds() {
+	public LocalDateTime getEnds() {
 		return ends;
 	}
 
 	@JsonProperty("ends")
-	public void setEnds(String ends) {
+	public void setEnds(LocalDateTime ends) {
 		this.ends = ends;
 	}
 

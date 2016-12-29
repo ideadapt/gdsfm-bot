@@ -10,9 +10,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import gdsfm.telegrambot.model.airtime.liveinfov2.show.Shows;
+import gdsfm.telegrambot.model.airtime.liveinfov2.station.Station;
+import gdsfm.telegrambot.model.airtime.liveinfov2.track.Tracks;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({ "station", "tracks", "shows" })
-public class LiveInfo {
+public class AirtimeLiveInfo {
 
 	@JsonProperty("station")
 	private Station station;
