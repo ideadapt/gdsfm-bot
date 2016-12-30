@@ -16,6 +16,6 @@ public interface HistoryTrackRepository extends JpaRepository<HistoryTrack, Stri
 	@Query("select e from HistoryTrack e where e.starts < ?1 order by e.starts desc")
 	List<HistoryTrack> findByTrackAtDate(LocalDateTime date, Pageable pageable);
 
-	List<HistoryTrack> findByStartsBeforeDesc(LocalDateTime date, Pageable pageable);
-	List<HistoryTrack> findByStartsAfterAsc(LocalDateTime date, Pageable pageable);
+//	List<HistoryTrack> findByStartsBeforeDesc(LocalDateTime date, Pageable pageable);
+//	List<HistoryTrack> findByStartsAfterAsc(LocalDateTime date, Pageable pageable);
 }
