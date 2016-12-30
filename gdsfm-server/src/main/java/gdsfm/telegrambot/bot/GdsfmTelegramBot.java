@@ -59,8 +59,8 @@ public class GdsfmTelegramBot extends TelegramLongPollingBot {
 			SendMessage response = null;
 			try {
 				if (text.equals("/")) {
-					logger.info("Add debug code here");
 					response = getDefaultResponse(message);
+					response.setText(" \\o/");
 				} else if (text.startsWith("/current")) {
 					response = current(message);
 				} else if (text.startsWith("/last")) {
@@ -87,25 +87,43 @@ public class GdsfmTelegramBot extends TelegramLongPollingBot {
 
 	protected SendMessage current(Message message) {
 		final SendMessage response = getDefaultResponse(message);
-
 		final AirtimeLiveInfo liveInfo = controller.current();
-		String text = null;
-
+		final StringBuilder text = new StringBuilder();
+		// Line 1
 		LiveInfoTrack track = liveInfo.getTracks().getCurrent();
+		boolean trackAvailable = track != null && track.getName() != null && !track.getName().equals("");
+		
+		if (trackAvailable) {
+			text.append("<b>");
+			text.append(track.getName());
+			text.append("</b>");
+		}
 		Show show = liveInfo.getShows().getCurrent();
-
-		if (track != null && track.getName() != null && !track.getName().equals("")) {
-			text = track.getName();
+		boolean showAvailable = show != null && show.getName() != null && !show.getName().equals("");
+		
+		if (!trackAvailable && showAvailable) {
+			if (text.length() > 0) {
+				text.append("\n");
+			}
+			text.append(show.getName());
 		}
-		else if (show != null && show.getName() != null && !show.getName().equals("")) {
-			text = show.getName();
+		if (!trackAvailable && !showAvailable) {
+			text.append("(no data)");
 		}
-		else {
-			text = "(no data)";
+		text.append("\n");
+		// Line 2
+		text.append("Tune in ");
+		if (trackAvailable && showAvailable) {
+			text.append("to ");
+			text.append("<i>");
+			text.append(show.getName());
+			text.append("</i> ");
 		}
-
-		response.setText(text);
-
+		text.append("at ");
+		text.append("<a href=\"http://play.gds.fm/\">GDS.FM</a>");
+		
+		response.setText(text.toString());
+		response.disableWebPagePreview();
 		return response;
 	}
 
