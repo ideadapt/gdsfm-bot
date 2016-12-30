@@ -43,10 +43,16 @@ public class GdsfmTelegramBotController {
 		return historyEntryJpaRepository.findByTrackAtDate(LocalDateTime.now(), new PageRequest(0, limit));
 	}
 
-	@RequestMapping("/history")
+	@RequestMapping("/before")
 	@ResponseBody
-	public List<HistoryTrack> history(@RequestParam(value = "date", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime date, @RequestParam(value = "limit", defaultValue = "5") int limit) {
+	public List<HistoryTrack> before(@RequestParam(value = "date", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime date, @RequestParam(value = "limit", defaultValue = "5") int limit) {
 		return historyEntryJpaRepository.findByTrackAtDate(date, new PageRequest(0, limit));
+	}
+
+	@RequestMapping("/after")
+	@ResponseBody
+	public List<HistoryTrack> after(@RequestParam(value = "date", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime date, @RequestParam(value = "limit", defaultValue = "5") int limit) {
+		return historyEntryJpaRepository.findByEndsAfter(date, new PageRequest(0, limit));
 	}
 
 }

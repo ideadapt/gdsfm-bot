@@ -65,8 +65,10 @@ public class GdsfmTelegramBot extends TelegramLongPollingBot {
 					response = current(message);
 				} else if (text.startsWith("/last")) {
 					response = last(message);
-				} else if (text.startsWith("/history")) {
-					response = history(message);
+				} else if (text.startsWith("/before")) {
+					response = before(message);
+				}else if (text.startsWith("/after")) {
+					response = after(message);
 				}
 
 				if (response != null && response.getText() != null && !response.getText().equals("")) {
@@ -132,17 +134,24 @@ public class GdsfmTelegramBot extends TelegramLongPollingBot {
 		final StringBuilder responseText = new StringBuilder();
 		final int argLimit = parseLimitArgument(message, maxSize);
 		controller.last(argLimit)
-				.stream()
 				.forEach(track -> responseText.append(formatHistoryTrack(track)));
 		response.setText(responseText.toString());
 		return response;
 	}
 
-	protected SendMessage history(Message message) {
+	protected SendMessage after(Message message) {
 		final SendMessage response = getDefaultResponse(message);
 		final StringBuilder responseText = new StringBuilder();
-		controller.history(LocalDateTime.now(), maxSize)
-				.stream()
+		controller.after(LocalDateTime.now(), maxSize)
+				.forEach(track -> responseText.append(formatHistoryTrack(track)));
+		response.setText(responseText.toString());
+		return response;
+	}
+
+	protected SendMessage before(Message message) {
+		final SendMessage response = getDefaultResponse(message);
+		final StringBuilder responseText = new StringBuilder();
+		controller.before(LocalDateTime.now(), maxSize)
 				.forEach(track -> responseText.append(formatHistoryTrack(track)));
 		response.setText(responseText.toString());
 		return response;

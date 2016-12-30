@@ -59,7 +59,7 @@ public class GdsfmTelegramBotPoller {
 
 	protected void parseAndStoreHistoryTracks() {
 		final RestTemplate restTemplate = new RestTemplate();
-		final HistoryTrack[] entries = restTemplate.getForObject("http://gdsfm.airtime.pro/api/item-history-feed", HistoryTrack[].class);
+		final HistoryTrack[] entries = restTemplate.getForObject("http://gdsfm.airtime.pro/api/item-before-feed", HistoryTrack[].class);
 		historyTrackRepository.save(Arrays.asList(entries));
 	}
 
