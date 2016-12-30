@@ -1,58 +1,69 @@
 
 package gdsfm.telegrambot.model.airtime.liveinfov2.track;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "starts", "ends", "type", "name", "media_item_played", "metadata", "record" })
-public class Track {
-
-	@JsonProperty("starts")
-	private String starts;
-	@JsonProperty("ends")
-	private String ends;
-	@JsonProperty("type")
-	private String type;
+@Entity
+public class LiveInfoTrack {
+	
+	//TODO: bad idea, find better id that collides
+	@Id
+	private String id = UUID.randomUUID().toString();
+	
 	@JsonProperty("name")
 	private String name;
+
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime starts;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime ends;
+	
+	@JsonProperty("type")
+	private String type;
 	@JsonProperty("media_item_played")
 	private Boolean mediaItemPlayed;
-	@JsonProperty("metadata")
-	private TrackMetadata metadata;
+	
 	@JsonProperty("record")
 	private String record;
+	
+	@Transient
+	@JsonProperty("metadata")
+	private TrackMetadata metadata;
 
 	@JsonIgnore
 	@Transient
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
 	@JsonProperty("starts")
-	public String getStarts() {
+	public LocalDateTime getStarts() {
 		return starts;
 	}
 
 	@JsonProperty("starts")
-	public void setStarts(String starts) {
+	public void setStarts(LocalDateTime starts) {
 		this.starts = starts;
 	}
 
 	@JsonProperty("ends")
-	public String getEnds() {
+	public LocalDateTime getEnds() {
 		return ends;
 	}
 
 	@JsonProperty("ends")
-	public void setEnds(String ends) {
+	public void setEnds(LocalDateTime ends) {
 		this.ends = ends;
 	}
 
@@ -115,5 +126,4 @@ public class Track {
 	public void setAdditionalProperty(String name, Object value) {
 		this.additionalProperties.put(name, value);
 	}
-
 }

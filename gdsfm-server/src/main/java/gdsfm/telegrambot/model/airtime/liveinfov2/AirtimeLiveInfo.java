@@ -20,10 +20,13 @@ public class AirtimeLiveInfo {
 
 	@JsonProperty("station")
 	private Station station;
+	
 	@JsonProperty("tracks")
 	private Tracks tracks;
+	
 	@JsonProperty("shows")
 	private Shows shows;
+	
 	@JsonIgnore
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 

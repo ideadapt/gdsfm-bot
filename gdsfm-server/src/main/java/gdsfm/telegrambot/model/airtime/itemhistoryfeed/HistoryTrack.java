@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Table(indexes = { @Index(name = "STARTS", columnList = "starts") })
-public class AirtimeHistoryEntry extends AbstractEntity { //TODO try to remove
+public class HistoryTrack extends AbstractEntity { //TODO try to remove
 	private static final long serialVersionUID = 3621195233271594236L;
 
 	@Id
@@ -30,20 +30,6 @@ public class AirtimeHistoryEntry extends AbstractEntity { //TODO try to remove
 	private String instance_id;
 	private String track_title;
 	private String artist_name;
-
-	public AirtimeHistoryEntry() {
-	}
-
-	public AirtimeHistoryEntry(LocalDateTime starts, LocalDateTime ends, String history_id, String instance_id,
-			String track_title, String artist_name) {
-		super();
-		this.starts = starts;
-		this.ends = ends;
-		this.history_id = history_id;
-		this.instance_id = instance_id;
-		this.track_title = track_title;
-		this.artist_name = artist_name;
-	}
 
 	public LocalDateTime getStarts() {
 		return starts;

@@ -16,41 +16,41 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 public class Tracks {
 
 	@JsonProperty("previous")
-	private Track previous;
+	private LiveInfoTrack previous;
 	@JsonProperty("current")
-	private Track current;
+	private LiveInfoTrack current;
 	@JsonProperty("next")
-	private Track next;
+	private LiveInfoTrack next;
 	@JsonIgnore
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
 	@JsonProperty("previous")
-	public Track getPrevious() {
+	public LiveInfoTrack getPrevious() {
 		return previous;
 	}
 
 	@JsonProperty("previous")
-	public void setPrevious(Track previous) {
+	public void setPrevious(LiveInfoTrack previous) {
 		this.previous = previous;
 	}
 
 	@JsonProperty("current")
-	public Track getCurrent() {
+	public LiveInfoTrack getCurrent() {
 		return current;
 	}
 
 	@JsonProperty("current")
-	public void setCurrent(Track current) {
+	public void setCurrent(LiveInfoTrack current) {
 		this.current = current;
 	}
 
 	@JsonProperty("next")
-	public Track getNext() {
+	public LiveInfoTrack getNext() {
 		return next;
 	}
 
 	@JsonProperty("next")
-	public void setNext(Track next) {
+	public void setNext(LiveInfoTrack next) {
 		this.next = next;
 	}
 

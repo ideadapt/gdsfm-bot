@@ -25,12 +25,6 @@
 	</repositories>
 
 	<dependencies>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-mongodb</artifactId>
-		</dependency>
-
 		<dependency>
 			<groupId>com.github.xabgesagtx</groupId>
 			<artifactId>telegram-spring-boot-starter</artifactId>
@@ -91,8 +85,7 @@
 				<configuration>
 					<imageName>${docker.image.repository}/${docker.image.prefix}-${project.artifactId}</imageName>
 					<baseImage>frolvlad/alpine-oraclejdk8:slim</baseImage>
-					<entryPoint>["java", "-Djava.security.egd=file:/dev/./urandom",
-						"-jar", "/${project.build.finalName}.jar"]</entryPoint>
+					<entryPoint>["java", "-Djava.security.egd=file:/dev/./urandom","-jar", "/${project.build.finalName}.jar"]</entryPoint>
 					<forceTags>true</forceTags>
 					<imageTags>
 						<imageTag>latest</imageTag>
