@@ -1,6 +1,7 @@
 package gdsfm.telegrambot.bot;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import gdsfm.telegrambot.controller.GdsfmTelegramBotController;
+import gdsfm.telegrambot.model.airtime.itemhistoryfeed.HistoryTrack;
 import gdsfm.telegrambot.model.airtime.liveinfov2.AirtimeLiveInfo;
 import gdsfm.telegrambot.model.airtime.liveinfov2.show.Show;
 import gdsfm.telegrambot.model.airtime.liveinfov2.track.LiveInfoTrack;
@@ -22,7 +24,7 @@ import gdsfm.telegrambot.model.airtime.liveinfov2.track.LiveInfoTrack;
 public class GdsfmTelegramBot extends TelegramLongPollingBot {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final int maxSize = 10;
+	private final int maxSize = 5;
 
 	@Autowired
 	private GdsfmTelegramBotController controller;
@@ -46,31 +48,32 @@ public class GdsfmTelegramBot extends TelegramLongPollingBot {
 	@Override
 	public void onUpdateReceived(Update update) {
 		if (update.hasMessage()) {
-			Message message = update.getMessage();
-			Long chatId = message.getChatId();
+			final Message message = update.getMessage();
+			
+			final Long chatId = message.getChatId();
+			final String text = message.getText();
 
-			SendMessage response = new SendMessage();
-			response.setChatId(chatId);
-			response.setParseMode("HTML");
-
-			String text = message.getText();
+			SendMessage response = null;
 			try {
 				if (text.equals("/")) {
 					logger.info("Add debug code here");
+					response = getDefaultResponse(message);
 				} else if (text.startsWith("/current")) {
-					response.setText(current(message));
+					response = current(message);
 				} else if (text.startsWith("/last")) {
-					response.setText(last(message));
+					response = last(message);
 				} else if (text.startsWith("/history")) {
-					response.setText(history(message));
+					response = history(message);
 				}
 
 				if (response != null && response.getText() != null && !response.getText().equals("")) {
 					sendMessage(response);
-					logger.info("Sent response \"{}\" for \"{}\" in {}", response.getText().substring(0, 20), text,
+					logger.info("Sent response \"{}\" for \"{}\" in {}",
+							response.getText().length() > 20 ? response.getText().substring(0, 20) + "..." : response.getText(),
+							text,
 							chatId);
 				} else {
-					logger.info("No Response for \"{}\" in {}", text, chatId);
+					logger.info("No Response for \"{}\" in {}", message.getText(), chatId);
 				}
 
 			} catch (TelegramApiException e) {
@@ -79,7 +82,9 @@ public class GdsfmTelegramBot extends TelegramLongPollingBot {
 		}
 	}
 
-	protected String current(Message message) {
+	protected SendMessage current(Message message) {
+		final SendMessage response = getDefaultResponse(message);
+
 		final AirtimeLiveInfo liveInfo = controller.current();
 		String text = null;
 
@@ -89,34 +94,62 @@ public class GdsfmTelegramBot extends TelegramLongPollingBot {
 		if (track != null && track.getName() != null && !track.getName().equals("")) {
 			text = track.getName();
 		}
-
-		if (show != null && show.getName() != null && !show.getName().equals("")) {
+		else if (show != null && show.getName() != null && !show.getName().equals("")) {
 			text = show.getName();
 		}
-
-		if (text == null) {
+		else {
 			text = "(no data)";
 		}
 
-		return text;
+		response.setText(text);
+
+		return response;
 	}
 
-	protected String last(Message message) {
-		return controller.last(maxSize).toString();
+	protected SendMessage last(Message message) {
+		final SendMessage response = getDefaultResponse(message);
+		final StringBuilder responseText = new StringBuilder();
+		controller.last(maxSize)
+				.stream()
+				.forEach(track -> responseText.append(formatHistoryTrack(track)));
+		response.setText(responseText.toString());
+		return response;
 	}
 
-	protected String history(Message message) {
-		final StringBuilder response = new StringBuilder();
-		controller.history(LocalDateTime.now().minusHours(4), maxSize).stream().forEach(h -> {
-			response.append("<i>[" + h.getStarts() + "]</i> ");
-			response.append("<b>");
-			response.append(h.getArtist_name());
-			response.append(" - ");
-			response.append(h.getTrack_title());
-			response.append("</b>");
-			response.append("\n");
-		});
-		return response.toString();
+	protected SendMessage history(Message message) {
+		final SendMessage response = getDefaultResponse(message);
+		final StringBuilder responseText = new StringBuilder();
+		controller.history(LocalDateTime.now(), maxSize)
+				.stream()
+				.forEach(track -> responseText.append(formatHistoryTrack(track)));
+		response.setText(responseText.toString());
+		return response;
+	}
+	
+	private SendMessage getDefaultResponse(Message message) {
+		final SendMessage response = new SendMessage();
+		response.setChatId(message.getChatId());
+		response.setParseMode("HTML");
+		return response;
+	}
+	
+	private String formatHistoryTrack(HistoryTrack track) {
+		final StringBuilder text = new StringBuilder();
+		text.append("<b>");
+		text.append(track.getArtist_name());
+		text.append("</b>");
+		text.append(" - ");
+		text.append("<b>");
+		text.append(track.getTrack_title());
+		text.append("</b>");
+		text.append("\n");
+		text.append("<i>[" + formatLocalDateTime(track.getStarts()) + "]</i> ");
+		text.append("\n\n");
+		return text.toString();
 	}
 
+	private String formatLocalDateTime(LocalDateTime date) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+		return date.format(formatter);
+	}
 }
