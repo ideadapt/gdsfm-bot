@@ -2,6 +2,8 @@ package gdsfm.telegrambot.bot;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +26,11 @@ import gdsfm.telegrambot.model.airtime.liveinfov2.track.LiveInfoTrack;
 public class GdsfmTelegramBot extends TelegramLongPollingBot {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final int maxSize = 5;
-
 	@Autowired
 	private GdsfmTelegramBotController controller;
+
+	@Value("${bot.default.maxResponseSize}")
+	private int maxSize;
 
 	@Value("${bot.token}")
 	private String token;
@@ -109,7 +112,8 @@ public class GdsfmTelegramBot extends TelegramLongPollingBot {
 	protected SendMessage last(Message message) {
 		final SendMessage response = getDefaultResponse(message);
 		final StringBuilder responseText = new StringBuilder();
-		controller.last(maxSize)
+		final int argLimit = parseLimitArgument(message, maxSize);
+		controller.last(argLimit)
 				.stream()
 				.forEach(track -> responseText.append(formatHistoryTrack(track)));
 		response.setText(responseText.toString());
@@ -151,5 +155,21 @@ public class GdsfmTelegramBot extends TelegramLongPollingBot {
 	private String formatLocalDateTime(LocalDateTime date) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 		return date.format(formatter);
+	}
+
+	private int parseLimitArgument(Message message, int maxSize) {
+		final List<String> args = Arrays.asList(message.getText().split(" "));
+
+		final String limit = args.stream().filter(arg -> {
+					try {
+						Integer.parseInt(arg);
+						return true;
+					} catch (NumberFormatException nfe) {
+						return false;
+					}
+				}
+		).findFirst().orElseGet(() -> String.valueOf(maxSize));
+		final int argLimit = Integer.parseInt(limit);
+		return argLimit <= maxSize ? argLimit : maxSize;
 	}
 }

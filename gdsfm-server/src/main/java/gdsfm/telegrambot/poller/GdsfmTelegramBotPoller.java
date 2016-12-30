@@ -2,6 +2,7 @@ package gdsfm.telegrambot.poller;
 
 import java.util.Arrays;
 
+import gdsfm.telegrambot.model.airtime.liveinfov2.show.Show;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,13 +66,14 @@ public class GdsfmTelegramBotPoller {
 	protected void parseAndStoreCurrentTrack() {
 		final RestTemplate restTemplate = new RestTemplate();
 		final AirtimeLiveInfo liveInfo = restTemplate.getForObject("http://gdsfm.airtime.pro/api/live-info-v2", AirtimeLiveInfo.class);
-		LiveInfoTrack current = liveInfo.getTracks().getCurrent();
+		final LiveInfoTrack current = liveInfo.getTracks().getCurrent();
 		trackRepository.save(current);
 	}
 
 	protected void parseAndStoreCurrentShow() {
 		final RestTemplate restTemplate = new RestTemplate();
 		final AirtimeLiveInfo liveInfo = restTemplate.getForObject("http://gdsfm.airtime.pro/api/live-info-v2", AirtimeLiveInfo.class);
-		showRepository.save(liveInfo.getShows().getCurrent());
+		final Show currentShow = liveInfo.getShows().getCurrent();
+		showRepository.save(currentShow);
 	}
 }
