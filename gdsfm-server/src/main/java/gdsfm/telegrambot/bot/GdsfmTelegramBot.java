@@ -132,7 +132,7 @@ public class GdsfmTelegramBot extends TelegramLongPollingBot {
 	protected SendMessage last(Message message) {
 		final SendMessage response = getDefaultResponse(message);
 		final StringBuilder responseText = new StringBuilder();
-		final int argLimit = parseLimitArgument(message, maxSize);
+		final int argLimit = parseIntArgumentAt(message, 1, maxSize);
 		controller.last(argLimit)
 				.forEach(track -> responseText.append(formatHistoryTrack(track)));
 		response.setText(responseText.toString());
@@ -184,19 +184,17 @@ public class GdsfmTelegramBot extends TelegramLongPollingBot {
 		return date.format(formatter);
 	}
 
-	private int parseLimitArgument(Message message, int maxSize) {
+	private int parseIntArgumentAt(Message message, int argIndex, int defaultMax) {
 		final List<String> args = Arrays.asList(message.getText().split(" "));
-
-		final String limit = args.stream().filter(arg -> {
-					try {
-						Integer.parseInt(arg);
-						return true;
-					} catch (NumberFormatException nfe) {
-						return false;
-					}
-				}
-		).findFirst().orElseGet(() -> String.valueOf(maxSize));
-		final int argLimit = Integer.parseInt(limit);
-		return argLimit <= maxSize ? argLimit : maxSize;
+		if(!args.isEmpty()){
+			try{
+				int argLimit = Integer.parseInt(args.get(argIndex));
+				return argLimit <= defaultMax ? argLimit : defaultMax;
+			}catch (Exception e){
+				return defaultMax;
+			}
+		}else{
+			return defaultMax;
+		}
 	}
 }
