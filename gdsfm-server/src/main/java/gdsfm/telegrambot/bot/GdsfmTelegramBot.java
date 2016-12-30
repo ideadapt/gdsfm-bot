@@ -1,14 +1,21 @@
 package gdsfm.telegrambot.bot;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
+import org.apache.tomcat.jni.Local;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
@@ -133,6 +140,7 @@ public class GdsfmTelegramBot extends TelegramLongPollingBot {
 		final SendMessage response = getDefaultResponse(message);
 		final StringBuilder responseText = new StringBuilder();
 		final int argLimit = parseIntArgumentAt(message, 1, maxSize);
+
 		controller.last(argLimit)
 				.forEach(track -> responseText.append(formatHistoryTrack(track)));
 		response.setText(responseText.toString());
@@ -141,8 +149,12 @@ public class GdsfmTelegramBot extends TelegramLongPollingBot {
 
 	protected SendMessage after(Message message) {
 		final SendMessage response = getDefaultResponse(message);
+
+		final LocalDateTime localDateTime = parseDateArgumentAt(message, 1, LocalDateTime.now());
+		final int argLimit = parseIntArgumentAt(message, 2, maxSize);
+
 		final StringBuilder responseText = new StringBuilder();
-		controller.after(LocalDateTime.now(), maxSize)
+		controller.after(localDateTime, argLimit)
 				.forEach(track -> responseText.append(formatHistoryTrack(track)));
 		response.setText(responseText.toString());
 		return response;
@@ -150,8 +162,12 @@ public class GdsfmTelegramBot extends TelegramLongPollingBot {
 
 	protected SendMessage before(Message message) {
 		final SendMessage response = getDefaultResponse(message);
+
+		final LocalDateTime localDateTime = parseDateArgumentAt(message, 1, LocalDateTime.now());
+		final int argLimit = parseIntArgumentAt(message, 2, maxSize);
+
 		final StringBuilder responseText = new StringBuilder();
-		controller.before(LocalDateTime.now(), maxSize)
+		controller.before(localDateTime, argLimit)
 				.forEach(track -> responseText.append(formatHistoryTrack(track)));
 		response.setText(responseText.toString());
 		return response;
@@ -184,6 +200,11 @@ public class GdsfmTelegramBot extends TelegramLongPollingBot {
 		return date.format(formatter);
 	}
 
+	private LocalDateTime getLocalDateTimeFromString(String date, String pattern) throws Exception {
+			final Date parse = new SimpleDateFormat(pattern).parse(date);
+			return LocalDateTime.ofInstant(parse.toInstant(), ZoneId.of(TimeZone.getDefault().getID()));
+	}
+
 	private int parseIntArgumentAt(Message message, int argIndex, int defaultMax) {
 		final List<String> args = Arrays.asList(message.getText().split(" "));
 		if(!args.isEmpty()){
@@ -195,6 +216,19 @@ public class GdsfmTelegramBot extends TelegramLongPollingBot {
 			}
 		}else{
 			return defaultMax;
+		}
+	}
+
+	private LocalDateTime parseDateArgumentAt(Message message, int argIndex, LocalDateTime defaultDate) {
+		final List<String> args = Arrays.asList(message.getText().split(" "));
+		if(!args.isEmpty()){
+			try{
+				return getLocalDateTimeFromString(args.get(argIndex), "dMy HHmm");
+			}catch (Exception e){
+				return defaultDate;
+			}
+		}else{
+			return defaultDate;
 		}
 	}
 }
