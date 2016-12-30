@@ -90,16 +90,14 @@
 					<imageTags>
 						<imageTag>latest</imageTag>
 					</imageTags>
+					<env>
+						<GDS_FM_BOT_TOKEN>${env.GDS_FM_BOT_TOKEN}</GDS_FM_BOT_TOKEN>
+					</env>
 					<resources>
 						<resource>
 							<targetPath>/</targetPath>
 							<directory>${project.build.directory}</directory>
 							<include>${project.build.finalName}.jar</include>
-						</resource>
-						<resource>
-							<env>
-								<GDS_FM_BOT_TOKEN>${env.GDS_FM_BOT_TOKEN}</GDS_FM_BOT_TOKEN>
-							</env>
 						</resource>
 					</resources>
 				</configuration>
